@@ -1,13 +1,13 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
+using Nhibernate_Fluent.Base.SessionFactory;
+using Nhibernate_Fluent.Repository;
+using System;
 
 namespace Nhibernate_Fluent
 {
@@ -24,11 +24,16 @@ namespace Nhibernate_Fluent
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllersWithViews();
+            services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+            services.AddScoped<IProductRepository, ProductRepository>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IServiceProvider serviceProvider)
         {
+            var httpAccessor = serviceProvider.GetService<IHttpContextAccessor>();
+            SessionFactory.httpContextAccessor = httpAccessor;
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
