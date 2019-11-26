@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
@@ -13,14 +15,21 @@ namespace Nhibernate_Fluent
     {
         public static void Main(string[] args)
         {
-            CreateHostBuilder(args).Build().Run();
+            BuildWebHost(args).Run();
         }
 
-        public static IHostBuilder CreateHostBuilder(string[] args) =>
-            Host.CreateDefaultBuilder(args)
-                .ConfigureWebHostDefaults(webBuilder =>
-                {
-                    webBuilder.UseStartup<Startup>();
-                });
+        public static IWebHost BuildWebHost(string[] args)
+        {
+            var configuration = new ConfigurationBuilder().AddCommandLine(args).Build();
+            return WebHost.CreateDefaultBuilder(args)
+             .UseStartup<Startup>()
+             .ConfigureKestrel((context, options) => {
+
+             })
+            .UseContentRoot(Directory.GetCurrentDirectory())
+            .UseConfiguration(configuration)
+            .UseIISIntegration()
+            .Build();
+        }
     }
 }
